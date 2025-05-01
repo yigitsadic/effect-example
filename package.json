@@ -5,10 +5,12 @@
   "private": true,
   "scripts": {
     "dev": "bun run --watch ./src/index.ts",
-    "start": "bun run ./src/index.ts"
+    "start": "bun run ./src/index.ts",
+    "test": "vitest"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "vitest": "^3.1.2"
   },
   "peerDependencies": {
     "typescript": "^5"
