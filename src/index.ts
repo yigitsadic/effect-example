@@ -1,6 +1,7 @@
 import { Config, ConfigProvider, Effect, pipe } from "effect";
 import { helloHandler } from "./handlers/hello";
 import { RequestService } from "./requests/requestService";
+import { BunRuntime } from "@effect/platform-bun";
 
 const program = Effect.gen(function* () {
   const port = yield* Config.string("PORT");
@@ -23,5 +24,5 @@ const program = Effect.gen(function* () {
 
 pipe(
   Effect.withConfigProvider(program, ConfigProvider.fromEnv()),
-  Effect.runPromise
+  BunRuntime.runMain
 );
