@@ -1,7 +1,10 @@
-import { Config, ConfigProvider, Effect, pipe } from "effect";
+import { Config, ConfigProvider, Effect, Logger, pipe, Schema } from "effect";
 import { helloHandler } from "./handlers/hello";
 import { RequestService } from "./requests/requestService";
-import { BunRuntime } from "@effect/platform-bun";
+import {
+  basicAuthentication,
+  unauthorizedHandler,
+} from "./guards/basicAuthentication";
 
 const program = Effect.gen(function* () {
   const port = yield* Config.string("PORT");
@@ -9,7 +12,12 @@ const program = Effect.gen(function* () {
     routes: {
       "/hello": (req) =>
         pipe(
-          Effect.provideService(helloHandler, RequestService, req),
+          basicAuthentication.pipe(
+            Effect.flatMap(() => helloHandler),
+            Effect.provideService(RequestService, req),
+            Effect.catchTag("UnauthorizedError", unauthorizedHandler),
+            Effect.withLogSpan("helloHandler")
+          ),
           Effect.runPromise
         ),
     },
@@ -24,5 +32,5 @@ const program = Effect.gen(function* () {
 
 pipe(
   Effect.withConfigProvider(program, ConfigProvider.fromEnv()),
-  BunRuntime.runMain
+  Effect.runPromise
 );

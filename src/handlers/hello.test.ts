@@ -25,6 +25,6 @@ describe("helloHandler", () => {
       )
     );
 
-    expect(await got.text()).toStrictEqual("Greeting my dear Yigit");
+    expect(await got.text()).toStrictEqual("Greetings my dear Yigit");
   });
 });

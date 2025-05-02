@@ -1,18 +1,20 @@
-import { Effect, Option, Schema } from "effect";
+import { Effect, Option, pipe, Schema } from "effect";
 import { readQueryParams } from "../requests/queryParams";
-
-const nameSchema = Schema.NonEmptyString;
 
 const helloHandler = Effect.gen(function* () {
   yield* Effect.log("Received a request.");
 
   const queryParams = yield* readQueryParams;
-  const name = Schema.decodeUnknownOption(nameSchema)(queryParams.get("name"));
-  const message = Option.map(name, (n) => `Greeting my dear ${n}`).pipe(
-    Option.getOrElse(() => "Hello there traveller!")
+  const name = pipe(
+    queryParams.get("name"),
+    Schema.decodeUnknownOption(Schema.NonEmptyString)
   );
+  const message = Option.match(name, {
+    onNone: () => "Hello there traveller!",
+    onSome: (n) => `Greetings my dear ${n}`,
+  });
 
   return new Response(message);
-}).pipe(Effect.withLogSpan("helloHandler"));
+});
 
 export { helloHandler };
